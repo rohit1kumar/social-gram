@@ -1,4 +1,4 @@
-const express = require("express")
+const express = require("express");
 const {
   register,
   login,
@@ -11,34 +11,35 @@ const {
   getAllUsers,
   getMyPosts,
   getUserPosts,
-} = require("../controllers/user")
-const { multer } = require('../middlewares/upload')
+} = require("../controllers/user");
 
-const { isAuthenticated } = require("../middlewares/auth")
-const router = express.Router()
+const { uploadToServer } = require('../utils/upload');
 
-router.route("/register").post(register)
+const { isAuthenticated } = require("../middlewares/auth");
+const router = express.Router();
 
-router.route("/login").post(login)
+router.route("/register").post(uploadToServer.single('avatar'), register);
 
-router.route("/logout").get(logout)
+router.route("/login").post(login);
 
-router.route("/follow/:id").get(isAuthenticated, followUser)
+router.route("/logout").get(logout);
 
-router.route("/update/password").put(isAuthenticated, updatePassword)
+router.route("/follow/:id").get(isAuthenticated, followUser);
 
-router.route("/update/profile").put(isAuthenticated, updateProfile)
+router.route("/update/password").put(isAuthenticated, updatePassword);
 
-router.route("/me").get(isAuthenticated, myProfile)
+router.route("/update/profile").put(isAuthenticated, uploadToServer.single('avatar'), updateProfile);
 
-router.route("/my/posts").get(isAuthenticated, getMyPosts)
+router.route("/me").get(isAuthenticated, myProfile);
 
-router.route("/userposts/:id").get(isAuthenticated, getUserPosts)
+router.route("/my/posts").get(isAuthenticated, getMyPosts);
 
-router.route("/user/:id").get(isAuthenticated, getUserProfile)
+router.route("/userposts/:id").get(isAuthenticated, getUserPosts);
 
-router.route("/users").get(isAuthenticated, getAllUsers)
+router.route("/user/:id").get(isAuthenticated, getUserProfile);
+
+router.route("/users").get(isAuthenticated, getAllUsers);
 
 
 
-module.exports = router
+module.exports = router;

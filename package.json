@@ -1,12 +1,13 @@
 {
-  "name": "social-media-api",
+  "name": "socialgram",
   "version": "1.0.0",
-  "description": "",
+  "description": "social media REST API",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
-  "author": "",
+  "author": "Rohit Kumar",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -17,8 +18,5 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.4.0",
     "multer": "^1.4.5-lts.1"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.16"
   }
 }
