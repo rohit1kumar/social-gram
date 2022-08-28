@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
-const { uploadToCloud, deletFromServer } = require('../utils/upload');
+const { uploadToCloud, deletFromServer, deleteFromCloud } = require('../utils/upload');
 require("dotenv").config({ path: "config/config.env" });
 
 exports.register = async (req, res) => {
@@ -17,7 +17,7 @@ exports.register = async (req, res) => {
     let myCloud = "";
 
     if (req.file) {
-      if (req.file.mimetype != 'image/png' && req.file.mimetype != 'image/jpg' && req.file.mimetype != 'image/jpeg') {
+      if (!req.file.mimetype.includes('image')) {
         await deletFromServer(req.file.path);
         return res.status(400).json({
           message: 'Only .png, .jpg and .jpeg format allowed!'
@@ -212,7 +212,7 @@ exports.updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
 
-    const { name, email, avatar } = req.body;
+    const { name, email } = req.body;
 
     if (name) {
       user.name = name;
@@ -220,25 +220,30 @@ exports.updateProfile = async (req, res) => {
     if (email) {
       user.email = email;
     }
-    if (avatar) {
-      console.log(avatar);
-    }
-    if (avatar) {
-      // if (!req.file) {
-      //   return res.status(400).json({
-      //     success: false,
-      //     message: "Please provide an image",
-      //   });
-      // }
+
+    //avatar upload
+    if (req.file) {
+
+      // if mimetype not include image i.e. .png, .jpg, .jpeg
+      if (!req.file.mimetype.includes('image')) {
+        await deletFromServer(req.file.path);
+        return res.status(400).json({
+          message: 'Only .png, .jpg and .jpeg format allowed!'
+        });
+      }
+      // if file size is greater than 1mb
+      if (req.file.size > 1000000) {
+        await deletFromServer(req.file.path);
+        return res.status(400).json({
+          message: 'File size is too large, limit is 1mb'
+        });
+      }
 
       await deleteFromCloud(user.avatar.public_id);
-      myCloud = await uploadToCloud(req.file.path, 'social/avatar');
-      console.log(myCloud);
-      const a = await deletFromServer(req.file.path);
-      console.log(a);
+      let myCloud = await uploadToCloud(req.file.path, 'social/avatar');
 
-      user.avatar.public_id = myCloud.public_id;
-      user.avatar.url = myCloud.secure_url;
+      await deletFromServer(req.file.path);
+      user.avatar = { public_id: myCloud.public_id, url: myCloud.secure_url };
     }
 
     await user.save();

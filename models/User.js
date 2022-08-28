@@ -9,10 +9,9 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please enter a name"],
   },
 
-  avatar: { 
+  avatar: {
     public_id: String,
     url: String,
-
   },
 
   email: {
