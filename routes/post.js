@@ -8,24 +8,28 @@ const {
   commentOnPost,
   deleteComment,
 } = require("../controllers/post");
-const { isAuthenticated } = require("../middlewares/auth");
+const { isAuthenticated } = require("../middlewares/auth"); // Middleware to check if user is authenticated
 
-const { uploadToServer } = require('../utils/upload');
+const { uploadToServer } = require('../utils/upload');  //uploading image to server
 
 
-router.route("/post/upload").post(isAuthenticated, uploadToServer.single('image'), createPost);
+router
+  .route("/post/upload")
+  .post(isAuthenticated, uploadToServer.single('image'), createPost); //uploading image to server and creating post
 
 router
   .route("/post/:id")
-  .post(isAuthenticated, likeAndUnlikePost)
-  .delete(isAuthenticated, deletePost);
+  .post(isAuthenticated, likeAndUnlikePost) // liking and unliking post
+  .delete(isAuthenticated, deletePost); // deleting post
 
-router.route("/posts").get(isAuthenticated, getPostOfFollowing);  //working get user's  post  user id
+router
+  .route("/posts")
+  .get(isAuthenticated, getPostOfFollowing);//  getting posts of following
 
 router
   .route("/post/comment/:id")
-  .post(isAuthenticated, commentOnPost) //working
-  .delete(isAuthenticated, deleteComment);  //working
-  
+  .post(isAuthenticated, commentOnPost) // commenting on post
+  .delete(isAuthenticated, deleteComment);   // deleting comment
+
 
 module.exports = router;

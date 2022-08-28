@@ -1,38 +1,37 @@
-const User = require("../models/User");
-const Post = require("../models/Post");
+const User = require("../models/user");
+const Post = require("../models/post");
 const { uploadToCloud, deletFromServer, deleteFromCloud } = require('../utils/upload');
-require("dotenv").config({ path: "config/config.env" });
 
-exports.register = async (req, res) => {
+exports.register = async (req, res) => {    //register a new user
   try {
     const { name, email, password } = req.body;
 
     let user = await User.findOne({ email });
-    if (user) {
+    if (user) { //if user already exists
       if (req.file) {
-        await deletFromServer(req.file.path);
+        await deletFromServer(req.file.path); //delete the image from the server  if it exists
       }
       return res.status(400).json({ success: false, message: "User already exists" });
     }
     let myCloud = "";
 
-    if (req.file) {
-      if (!req.file.mimetype.includes('image')) {
-        await deletFromServer(req.file.path);
+    if (req.file) { //if image is uploaded
+      if (!req.file.mimetype.includes('image')) { //if the uploaded file is not an image
+        await deletFromServer(req.file.path); //delete the image from the server  if it exists
         return res.status(400).json({
           message: 'Only .png, .jpg and .jpeg format allowed!'
         });
       }
 
-      if (req.file.size > 1000000) { // 1mb default
+      if (req.file.size > 1000000) { // 1mb default limit
         await deletFromServer(req.file.path);
         return res.status(400).json({
           message: 'File size is too large, limit is 1mb'
         });
       }
 
-      myCloud = await uploadToCloud(req.file.path, 'social/avatar');
-      await deletFromServer(req.file.path);
+      myCloud = await uploadToCloud(req.file.path, 'social/avatar');  //upload the image to cloudinary
+      await deletFromServer(req.file.path); //delete the image from the server  if it exists
     }
 
     user = await User.create({
@@ -42,14 +41,14 @@ exports.register = async (req, res) => {
       avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
     });
 
-    const token = await user.generateToken();
+    const token = await user.generateToken(); //generate a token for the user
 
-    const options = {
+    const options = { //options for the cookie
       expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       httpOnly: true,
     };
 
-    res.status(201).cookie("token", token, options).json({
+    res.status(201).cookie("token", token, options).json({  //send the cookie and the user data
       success: true,
       user,
       token,
@@ -63,13 +62,13 @@ exports.register = async (req, res) => {
 };
 
 
-exports.login = async (req, res) => {
+exports.login = async (req, res) => { //login a user
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email })
-      .select("+password")
-      .populate("posts followers following");
+    const user = await User.findOne({ email })  //find the user by email
+      .select("+password")                    //select the password field because it is not returned by default
+      .populate("posts followers following"); //populate the posts, followers and following fields of the user
 
     if (!user) {
       return res.status(400).json({
@@ -80,21 +79,21 @@ exports.login = async (req, res) => {
 
     const isMatch = await user.matchPassword(password);
 
-    if (!isMatch) {
+    if (!isMatch) { //if the password is not correct
       return res.status(400).json({
         success: false,
         message: "Incorrect password",
       });
     }
 
-    const token = await user.generateToken();
+    const token = await user.generateToken(); //generate a token for the user
 
-    const options = {
+    const options = { //options for the cookie
       expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       httpOnly: true,
     };
 
-    res.status(200).cookie("token", token, options).json({
+    res.status(200).cookie("token", token, options).json({  //send the cookie and the user data
       success: true,
       message: "Logged in successfully",
       user,
@@ -108,11 +107,11 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.logout = async (req, res) => {
+exports.logout = async (req, res) => {  //logout a user
   try {
     res
       .status(200)
-      .cookie("token", null, { expires: new Date(Date.now()), httpOnly: true })
+      .cookie("token", null, { expires: new Date(Date.now()), httpOnly: true }) //delete the cookie
       .json({
         success: true,
         message: "Logged out",
@@ -125,24 +124,24 @@ exports.logout = async (req, res) => {
   }
 };
 
-exports.followUser = async (req, res) => {
+exports.followUser = async (req, res) => {  //follow a user
   try {
-    const userToFollow = await User.findById(req.params.id);
-    const loggedInUser = await User.findById(req.user._id);
+    const userToFollow = await User.findById(req.params.id);  //find the user to follow by id
+    const loggedInUser = await User.findById(req.user._id); //find the logged in user by id
 
-    if (!userToFollow) {
+    if (!userToFollow) {  //if the user to follow does not exist
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
-    if (loggedInUser.following.includes(userToFollow._id)) {
-      const indexfollowing = loggedInUser.following.indexOf(userToFollow._id);
-      const indexfollowers = userToFollow.followers.indexOf(loggedInUser._id);
+    if (loggedInUser.following.includes(userToFollow._id)) {  //if the user is already following the user to follow
+      const indexfollowing = loggedInUser.following.indexOf(userToFollow._id);  //find the index of the user to follow in the following array
+      const indexfollowers = userToFollow.followers.indexOf(loggedInUser._id);  //find the index of the logged in user in the followers array
 
-      loggedInUser.following.splice(indexfollowing, 1);
-      userToFollow.followers.splice(indexfollowers, 1);
+      loggedInUser.following.splice(indexfollowing, 1); //remove the user to follow from the following array of the logged in user
+      userToFollow.followers.splice(indexfollowers, 1); //remove the logged in user from the followers array of the user to follow
 
       await loggedInUser.save();
       await userToFollow.save();
@@ -151,9 +150,9 @@ exports.followUser = async (req, res) => {
         success: true,
         message: "User Unfollowed",
       });
-    } else {
-      loggedInUser.following.push(userToFollow._id);
-      userToFollow.followers.push(loggedInUser._id);
+    } else {  //if the user is not following the user to follow
+      loggedInUser.following.push(userToFollow._id);  //add the user to follow to the following array of the logged in user
+      userToFollow.followers.push(loggedInUser._id);  //add the logged in user to the followers array of the user to follow
 
       await loggedInUser.save();
       await userToFollow.save();
@@ -171,13 +170,13 @@ exports.followUser = async (req, res) => {
   }
 };
 
-exports.updatePassword = async (req, res) => {
+exports.updatePassword = async (req, res) => {  //update the password of a user
   try {
-    const user = await User.findById(req.user._id).select("+password");
+    const user = await User.findById(req.user._id).select("+password"); //find the user by id and select the password field because it is not returned by default
 
     const { oldPassword, newPassword } = req.body;
 
-    if (!oldPassword || !newPassword) {
+    if (!oldPassword || !newPassword) { //if the old password or the new password is not provided
       return res.status(400).json({
         success: false,
         message: "Please provide old and new password",
@@ -186,14 +185,14 @@ exports.updatePassword = async (req, res) => {
 
     const isMatch = await user.matchPassword(oldPassword);
 
-    if (!isMatch) {
+    if (!isMatch) { //if the old password is not correct
       return res.status(400).json({
         success: false,
         message: "Incorrect Old password",
       });
     }
 
-    user.password = newPassword;
+    user.password = newPassword;  //update the password of the user
     await user.save();
 
     res.status(200).json({
@@ -208,42 +207,38 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async (req, res) => { //update the profile of a user
   try {
     const user = await User.findById(req.user._id);
 
     const { name, email } = req.body;
 
-    if (name) {
+    if (name) { //if the name is provided
       user.name = name;
     }
-    if (email) {
+    if (email) {  //if the email is provided
       user.email = email;
     }
 
-    //avatar upload
-    if (req.file) {
-
-      // if mimetype not include image i.e. .png, .jpg, .jpeg
-      if (!req.file.mimetype.includes('image')) {
-        await deletFromServer(req.file.path);
+    if (req.file) { //if the avatar is provided
+      if (!req.file.mimetype.includes('image')) { //if the file is not an image
+        await deletFromServer(req.file.path); //delete the file from the server
         return res.status(400).json({
           message: 'Only .png, .jpg and .jpeg format allowed!'
         });
       }
-      // if file size is greater than 1mb
-      if (req.file.size > 1000000) {
+      if (req.file.size > 1000000) {  //if file size is greater than 1mb
         await deletFromServer(req.file.path);
         return res.status(400).json({
           message: 'File size is too large, limit is 1mb'
         });
       }
 
-      await deleteFromCloud(user.avatar.public_id);
-      let myCloud = await uploadToCloud(req.file.path, 'social/avatar');
+      await deleteFromCloud(user.avatar.public_id); //delete the old avatar from cloudinary
+      let myCloud = await uploadToCloud(req.file.path, 'social/avatar');  //upload the new avatar to cloudinary
 
-      await deletFromServer(req.file.path);
-      user.avatar = { public_id: myCloud.public_id, url: myCloud.secure_url };
+      await deletFromServer(req.file.path); //delete the old avatar from the server
+      user.avatar = { public_id: myCloud.public_id, url: myCloud.secure_url };  //update the avatar of the user
     }
 
     await user.save();
@@ -261,10 +256,10 @@ exports.updateProfile = async (req, res) => {
 };
 
 
-exports.myProfile = async (req, res) => {
+exports.myProfile = async (req, res) => { //get the profile of the logged in user
   try {
     const user = await User.findById(req.user._id)
-      .select("+email")
+      .select("+email") //select the email field because it is not returned by default
       .populate("posts followers following")
       .populate({ path: "posts", select: "-owner" }); // -owner is to exclude the owner from the posts array
 
@@ -280,7 +275,7 @@ exports.myProfile = async (req, res) => {
   }
 };
 
-exports.getUserProfile = async (req, res) => {
+exports.getUserProfile = async (req, res) => {  //get the profile of a user
   try {
     const user = await User.findById(req.params.id).populate(
       "posts followers following"
@@ -306,11 +301,11 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res) => { //get all the users
   try {
     const { name } = req.query;
 
-    if (!name) { // name is required to search for users
+    if (!name) {    //if the name is not provided
       return res.status(400).json({
         success: false,
         message: "Please provide a name, to search",
@@ -318,7 +313,7 @@ exports.getAllUsers = async (req, res) => {
     }
 
     const users = await User.find({
-      name: { $regex: name, $options: "i" },
+      name: { $regex: name, $options: "i" },  //find all the users whose name matches the name provided in the query  $options: "i" is to make the search case insensitive
     });
 
     res.status(200).json({
@@ -334,14 +329,14 @@ exports.getAllUsers = async (req, res) => {
 };
 
 
-exports.getMyPosts = async (req, res) => {
+exports.getMyPosts = async (req, res) => {  //get all the posts of the logged in user
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id); //find the user by id
 
     const posts = [];
 
-    for (let i = 0; i < user.posts.length; i++) {
-      const post = await Post.findById(user.posts[i])
+    for (let i = 0; i < user.posts.length; i++) { //loop through the posts array of the user
+      const post = await Post.findById(user.posts[i]) //find the post by id
         .select("-owner")
         .populate("likes comments.user owner");
       posts.push(post);
@@ -361,7 +356,7 @@ exports.getMyPosts = async (req, res) => {
   }
 };
 
-exports.getUserPosts = async (req, res) => {
+exports.getUserPosts = async (req, res) => {  //get all the posts of a user
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -372,7 +367,7 @@ exports.getUserPosts = async (req, res) => {
     }
     const posts = [];
 
-    for (let i = 0; i < user.posts.length; i++) {
+    for (let i = 0; i < user.posts.length; i++) { //loop through the posts array of the user
       const post = await Post.findById(user.posts[i]).populate(
         "likes comments.user owner"
       );

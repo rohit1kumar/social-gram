@@ -1,8 +1,8 @@
 const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
+const multer = require('multer');   
 const fs = require('fs');
 const util = require('util');
-const unlinkfile = util.promisify(fs.unlink);
+const unlinkfile = util.promisify(fs.unlink);   //promisify the fs.unlink function
 
 // cloudinary config files
 cloudinary.config({

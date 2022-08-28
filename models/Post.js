@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema({
-  caption: String,
+  caption: String,    // caption of the post
 
   image: {
-    public_id: String,
-    url: String,
+    public_id: String,  // public_id is the id of the image uploaded to cloudinary
+    url: String,      // url is the url of the image uploaded to cloudinary
   },
 
   owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: mongoose.Schema.Types.ObjectId, //references to user model
+    ref: "user",
 
   },
 
@@ -20,16 +20,16 @@ const postSchema = new mongoose.Schema({
   },
   likes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: mongoose.Schema.Types.ObjectId, //references to user model
+      ref: "user",
     },
   ],
 
   comments: [
     {
       user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type: mongoose.Schema.Types.ObjectId, //references to user model
+        ref: "user",
       },
       comment: {
         type: String,
@@ -39,4 +39,4 @@ const postSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("Post", postSchema);
+module.exports = mongoose.model("post", postSchema);
