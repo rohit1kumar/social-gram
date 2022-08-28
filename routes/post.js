@@ -20,11 +20,12 @@ router
   .post(isAuthenticated, likeAndUnlikePost)
   .delete(isAuthenticated, deletePost);
 
-router.route("/posts").get(isAuthenticated, getPostOfFollowing);
+router.route("/posts").get(isAuthenticated, getPostOfFollowing);  //working get user's  post  user id
 
 router
   .route("/post/comment/:id")
-  .put(isAuthenticated, commentOnPost)
-  .delete(isAuthenticated, deleteComment);
+  .post(isAuthenticated, commentOnPost) //working
+  .delete(isAuthenticated, deleteComment);  //working
+  
 
 module.exports = router;

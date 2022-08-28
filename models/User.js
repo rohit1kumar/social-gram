@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please enter a name"],
   },
 
-  avatar: {
+  avatar: { 
     public_id: String,
     url: String,
 
@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter an email"],
     unique: [true, "Email already exists"],
+    select: false,
   },
   password: {
     type: String,

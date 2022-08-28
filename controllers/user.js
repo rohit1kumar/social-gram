@@ -30,7 +30,7 @@ exports.register = async (req, res) => {
           message: 'File size is too large, limit is 1mb'
         });
       }
-      
+
       myCloud = await uploadToCloud(req.file.path, 'social/avatar');
       await deletFromServer(req.file.path);
     }
@@ -79,7 +79,6 @@ exports.login = async (req, res) => {
     }
 
     const isMatch = await user.matchPassword(password);
-    console.log(isMatch);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -89,7 +88,6 @@ exports.login = async (req, res) => {
     }
 
     const token = await user.generateToken();
-    // console.log(token);
 
     const options = {
       expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
@@ -222,12 +220,22 @@ exports.updateProfile = async (req, res) => {
     if (email) {
       user.email = email;
     }
-
     if (avatar) {
+      console.log(avatar);
+    }
+    if (avatar) {
+      // if (!req.file) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: "Please provide an image",
+      //   });
+      // }
 
       await deleteFromCloud(user.avatar.public_id);
       myCloud = await uploadToCloud(req.file.path, 'social/avatar');
-      await deletFromServer(req.file.path);
+      console.log(myCloud);
+      const a = await deletFromServer(req.file.path);
+      console.log(a);
 
       user.avatar.public_id = myCloud.public_id;
       user.avatar.url = myCloud.secure_url;
@@ -250,13 +258,14 @@ exports.updateProfile = async (req, res) => {
 
 exports.myProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate(
-      "posts followers following"
-    );
+    const user = await User.findById(req.user._id)
+      .select("+email")
+      .populate("posts followers following")
+      .populate({ path: "posts", select: "-owner" }); // -owner is to exclude the owner from the posts array
 
     res.status(200).json({
       success: true,
-      user,
+      user
     });
   } catch (error) {
     res.status(500).json({
@@ -282,6 +291,7 @@ exports.getUserProfile = async (req, res) => {
     res.status(200).json({
       success: true,
       user,
+
     });
   } catch (error) {
     res.status(500).json({
@@ -293,8 +303,17 @@ exports.getUserProfile = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
+    const { name } = req.query;
+
+    if (!name) { // name is required to search for users
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a name, to search",
+      });
+    }
+
     const users = await User.find({
-      name: { $regex: req.query.name, $options: "i" },
+      name: { $regex: name, $options: "i" },
     });
 
     res.status(200).json({
@@ -317,15 +336,17 @@ exports.getMyPosts = async (req, res) => {
     const posts = [];
 
     for (let i = 0; i < user.posts.length; i++) {
-      const post = await Post.findById(user.posts[i]).populate(
-        "likes comments.user owner"
-      );
+      const post = await Post.findById(user.posts[i])
+        .select("-owner")
+        .populate("likes comments.user owner");
       posts.push(post);
     }
 
     res.status(200).json({
       success: true,
-      posts,
+      total_posts: posts.length,
+      posts
+
     });
   } catch (error) {
     res.status(500).json({
@@ -338,7 +359,12 @@ exports.getMyPosts = async (req, res) => {
 exports.getUserPosts = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
     const posts = [];
 
     for (let i = 0; i < user.posts.length; i++) {
