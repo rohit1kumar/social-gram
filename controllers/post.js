@@ -2,7 +2,7 @@ const Post = require("../models/post");
 const User = require("../models/user");
 const { uploadToCloud, deleteFromCloud, deletFromServer } = require('../utils/upload');
 
-exports.createPost = async (req, res) => {  // create a new post
+createPost = async (req, res) => {  // create a new post
   try {
     let myCloud = "";
 
@@ -40,7 +40,7 @@ exports.createPost = async (req, res) => {  // create a new post
   }
 };
 
-exports.deletePost = async (req, res) => {  // delete a post
+deletePost = async (req, res) => {  // delete a post
   try {
     const post = await Post.findById(req.params.id);    // find the post by post's id
 
@@ -81,7 +81,7 @@ exports.deletePost = async (req, res) => {  // delete a post
   }
 };
 
-exports.likeAndUnlikePost = async (req, res) => { // like and unlike a post (toggle)
+likeAndUnlikePost = async (req, res) => { // like and unlike a post (toggle)
   try {
     const post = await Post.findById(req.params.id);  // find the post by post's id
 
@@ -121,7 +121,7 @@ exports.likeAndUnlikePost = async (req, res) => { // like and unlike a post (tog
   }
 };
 
-exports.getPostOfFollowing = async (req, res) => {  // get all posts of the users who are following the user who is logged in
+getPostOfFollowing = async (req, res) => {  // get all posts of the users who are following the user who is logged in
   try {
     const user = await User.findById(req.user._id); // find the user who is logged in
 
@@ -144,7 +144,7 @@ exports.getPostOfFollowing = async (req, res) => {  // get all posts of the user
 };
 
 
-exports.commentOnPost = async (req, res) => { // comment on a post
+commentOnPost = async (req, res) => { // comment on a post
   try {
     const post = await Post.findById(req.params.id);  // find the post by post's id
 
@@ -173,7 +173,7 @@ exports.commentOnPost = async (req, res) => { // comment on a post
   }
 };
 
-exports.deleteComment = async (req, res) => { // delete a comment
+deleteComment = async (req, res) => { // delete a comment
   try {
     const post = await Post.findById(req.params.id);  // find the post by post's id
 
@@ -226,3 +226,5 @@ exports.deleteComment = async (req, res) => { // delete a comment
     });
   }
 };
+
+module.exports = { deletePost, likeAndUnlikePost, getPostOfFollowing, commentOnPost, deleteComment };
