@@ -67,4 +67,5 @@ userSchema.methods.generateToken = function () {
   return jwt.sign({ _id: this._id }, process.env.JWT_SECRET);
 };
 
-module.exports = mongoose.model("user", userSchema);
+const user = mongoose.model("user", userSchema);
+module.exports = user;

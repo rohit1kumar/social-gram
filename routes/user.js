@@ -14,7 +14,7 @@ const {
   getUserPosts,
 } = require("../controllers/user");
 
-const { uploadToServer } = require('../utils/upload'); //uploading image to server
+const { uploadToServer } = require("../utils/upload"); //uploading image to server
 const { isAuthenticated } = require("../middlewares/auth"); // Middleware to check if user is authenticated
 
 

@@ -10,7 +10,7 @@ const {
 } = require("../controllers/post");
 const { isAuthenticated } = require("../middlewares/auth"); // Middleware to check if user is authenticated
 
-const { uploadToServer } = require('../utils/upload');  //uploading image to server
+const { uploadToServer } = require("../utils/upload");  //uploading image to server
 
 
 router
