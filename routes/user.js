@@ -40,4 +40,4 @@ router.route("/user/:id").get(isAuthenticated, getUserProfile); //  getting user
 
 router.route("/users").get(isAuthenticated, getAllUsers); //  getting all users by name query params
 
-module.exports = router;  
+module.exports = router;
