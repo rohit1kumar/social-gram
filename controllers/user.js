@@ -316,6 +316,14 @@ exports.getAllUsers = async (req, res) => { //get all the users
       name: { $regex: name, $options: "i" },  //find all the users whose name matches the name provided in the query  $options: "i" is to make the search case insensitive
     });
 
+    //if no user is found
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No user found",
+      });
+    }
+
     res.status(200).json({
       success: true,
       users,
