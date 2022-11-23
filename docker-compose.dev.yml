@@ -1,0 +1,24 @@
+version: '3'
+services:
+  nginx:
+    ports:
+      - "3000:80"
+  nodeapp:
+    build:
+      context: .
+      args:
+        NODE_ENV: development
+    volumes:
+      - ./:/app # Mounts the current directory on the host to /app inside the container, to allow live editing of code without having to rebuild the image
+      - /app/node_modules # don't mount node_modules from host machine to container to avoid conflicts with host machine
+    environment:
+      - NODE_ENV=development
+      - MONGO_USER=rohit
+      - MONGO_PASSWORD=rohit
+    command: npm run dev
+
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=rohit
+      - MONGO_INITDB_ROOT_PASSWORD=rohit
