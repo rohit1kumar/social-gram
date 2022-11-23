@@ -1,58 +1,58 @@
 # API
 ## Project Structure
-
-    api/
-    ├─ config/
-    │  ├─ config.env
-    │  ├─ database.js
-    ├─ controller/
-    │  ├─ post.js
-    │  ├─ user.js
-    ├─ modals/
-    │  ├─ post.js
-    │  ├─ user.js
-    ├─ middleware/
-    │  ├─ auth.js
-    ├─ routes/
-    │  ├─ post.js
-    │  ├─ user.js
-    ├─ utils/
-    │  ├─ notFound.js
-    │  ├─ upload.js
-    ├─ package-lock.json
-    ├─ package.json
-    ├─ README.md
-    ├─ app.js
-
-
+    socialgram/
+        ├── Dockerfile
+        ├── README.md
+        ├── app.js
+        ├── config
+        │   └── database.js
+        ├── controllers
+        │   ├── post.js
+        │   └── user.js
+        ├── docker-compose.dev.yml
+        ├── docker-compose.prod.yml
+        ├── docker-compose.yml
+        ├── middlewares
+        │   └── auth.js
+        ├── models
+        │   ├── post.js
+        │   └── user.js
+        ├── nginx
+        │   └── default.conf
+        ├── package-lock.json
+        ├── package.json
+        ├── routes
+        │   ├── post.js
+        │   └── user.js
+        └── utils
+            ├── notFound.js
+            └── upload.js
 ## Getting Stated
 
 ### Clone the repository
      git clone https://github.com/rohit1kumar/social-gram.git
 
-
-### Install dependencies
-     cd social-gram
-     npm install
-
+### Change the directory
+        cd socialgram
 ### Add environment variables
     PORT=3000
-    MONGO_URL=mongodb://localhost:27017/dbname
-    JWT_SECRET=secret
-    CLOUDINARY_NAME=
-    CLOUDINARY_API_KEY=
-    CLOUDINARY_API_SECRET=
+    JWT_SECRET=<JWT_SECRET>
+    CLOUDINARY_NAME=<CLOUDINARY_NAME>
+    CLOUDINARY_API_KEY=<CLOUDINARY_API_KEY>
+    CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
 
 *visit https://cloudinary.com/ click on 'Configure your SDK' to get cloudinary credentials*
 
+### Build and run the project in docker
 
-### Build and run the project
-     npm start
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 
+### Stop and remove the containers
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 ### Base URL
-    https://social-gramm.herokuapp.com/api/v1/
+    http://localhost:3000/api/v1
 
-## Endpoints
+## API Endpoints
 
 |  REQUEST  |  ENDPOINT         |  DESCRIPTION
 |    ---    |    ---            |     ---

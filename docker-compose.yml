@@ -11,12 +11,14 @@ services:
 
   nodeapp:
     build: .
-    environment:
-      - PORT=3000
-      - JWT_SECRET=<JWT_SECRET>
-      - CLOUDINARY_NAME=<CLOUDINARY_NAME>
-      - CLOUDINARY_API_KEY=<CLOUDINARY_API_KEY>
-      - CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
+    # environment:
+    #   - PORT=3000
+    #   - JWT_SECRET=<JWT_SECRET>
+    #   - CLOUDINARY_NAME=<CLOUDINARY_NAME>
+    #   - CLOUDINARY_API_KEY=<CLOUDINARY_API_KEY>
+    #   - CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
+    env_file:
+      - .env
     depends_on:
       - mongo
 
