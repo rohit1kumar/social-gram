@@ -3,13 +3,15 @@ services:
   nginx:
     ports:
       - "3000:80"
+
   nodeapp:
     build:
-      context: .
+      context: ./backend
+      dockerfile: Dockerfile
       args:
-        NODE_ENV: development
+        - NODE_ENV=development
     volumes:
-      - ./:/app # Mounts the current directory on the host to /app inside the container, to allow live editing of code without having to rebuild the image
+      - ./backend:/app # Mounts the current directory on the host to /app inside the container, to allow live editing of code without having to rebuild the image
       - /app/node_modules # don't mount node_modules from host machine to container to avoid conflicts with host machine
     environment:
       - NODE_ENV=development

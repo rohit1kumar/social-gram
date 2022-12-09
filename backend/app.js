@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-// require("dotenv").config();
+require("dotenv").config({ path: '../.env' }); // to use .env file
 const cookieParser = require("cookie-parser");
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -28,6 +28,7 @@ app.use(notFound);  //to handle 404 error
 //connecting db
 connectDatabase();
 const port = process.env.PORT || 5000;
+// console.log(process.env);
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
