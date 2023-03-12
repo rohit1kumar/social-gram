@@ -17,7 +17,7 @@ And finally I've used Docker Compose for running multiple containers as a single
 User Authentication (Login, Signup, Logout) and
 Allows the user to create & remove a post with caption & image, Like & unlike a post, Follow & unfollow users, Get
 user posts & profiles, Add & remove a comment, Update profile & password, etc.\
-    Constructed an authentication system using JWT. \
+    Constructed an authentication system using JWT.
 
 TODO: will be adding frontend, along with caching
 
